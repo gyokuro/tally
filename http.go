@@ -2,13 +2,47 @@ package tally
 
 import (
 	"encoding/json"
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
+	"github.com/gyokuro/tally/util"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
 	"strconv"
 )
+
+var http_headers = map[string]string{
+	"Content-Type":                "application/protobuff",
+	"Access-Control-Allow-Origin": "*",
+}
+
+// Adds all the basic headers such as json content-type for REST endpoint
+// and CORS header for cross-domain resource sharing
+// TODO - make the CORS domains specified from the command line to tighten security.
+func addHeaders(w *http.ResponseWriter) {
+	(*w).Header().Add("Content-Type", "application/json")
+	(*w).Header().Add("Access-Control-Allow-Origin", "*")
+}
+
+func EventHttpServer(service EventService) *http.Server {
+	router := mux.NewRouter()
+
+	// Create / Update Request
+	router.Methods("PUT", "POST").Path("/v1/events/pb").HandlerFunc(handlePut(service))
+
+	return &http.Server{
+		Handler: router,
+	}
+}
+
+func handlePut(service EventService) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		util.AddHeaders(&w, http_headers)
+		params := mux.Vars(r)
+		glog.Info("Got params", params)
+	}
+}
 
 // Returns a http server from given service object
 // Registration of URL routes to handler functions that will invoke the service's methods to do CRUD.
@@ -71,14 +105,6 @@ func RunServer(server *http.Server, stop chan bool) (stopped chan bool) {
 		}
 	}(&fromSignal)
 	return
-}
-
-// Adds all the basic headers such as json content-type for REST endpoint
-// and CORS header for cross-domain resource sharing
-// TODO - make the CORS domains specified from the command line to tighten security.
-func addHeaders(w *http.ResponseWriter) {
-	(*w).Header().Add("Content-Type", "application/json")
-	(*w).Header().Add("Access-Control-Allow-Origin", "*")
 }
 
 func handleCreateUpdate(service CabService) func(http.ResponseWriter, *http.Request) {

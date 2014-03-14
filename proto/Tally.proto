@@ -1,0 +1,31 @@
+package Tally;
+
+message Content {
+    required string mime = 1;
+    required bytes data = 2;
+}
+
+// To be transformed to GeoJson - ex)  {"location" : [-71.34, 41.12]}
+// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/mapping-geo-point-type.html
+message Location {
+    required double lon = 1;
+    required double lat = 2;
+}
+
+message Attribute {
+    required string key = 1;
+    optional string string_value = 2;
+    optional int64 int_value = 3;
+    optional double double_value = 4;
+    optional bool bool_value = 5;
+    optional Content content_value = 6;
+}
+
+message Event {
+    required double timestamp = 1; // seconds
+    required string type = 2;
+    required string source = 3;
+    optional string context = 4;
+    optional Location location = 5;
+    repeated Attribute attributes = 6;
+}

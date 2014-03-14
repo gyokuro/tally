@@ -2,6 +2,7 @@ package tally
 
 import (
 	"errors"
+	"github.com/gyokuro/tally/proto"
 )
 
 var (
@@ -13,6 +14,10 @@ var (
 type Location struct {
 	Latitude  float64
 	Longitude float64
+}
+
+type EventService interface {
+	Put(events []Tally.Event) error
 }
 
 // Typedef of Id, using 64 bit unsigned int.

@@ -1,22 +1,21 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"github.com/gyokuro/tally"
 	"github.com/gyokuro/tally/impl"
-//	webapp "github.com/gyokuro/tally/resources/webapp"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"errors"
 	"strconv"
 )
 
 // Flags from the command line
 var (
 	httpPort             = flag.Int("p", 8080, "http server port")
-	webappPort           = flag.Int("wp", 8888, "web ui server port")
+	webappPort           = flag.Int("wp", 8888, "webapp port")
 	noMongo              = flag.Bool("nomgo", false, "True to run without mongo db")
 	mongoUrl             = flag.String("dbUrl", "localhost", "MongoDb url")
 	mongoDbName          = flag.String("dbName", "tally", "MongoDb database name")
@@ -32,7 +31,7 @@ func (f *fileSystemWrapper) Open(path string) (file http.File, err error) {
 	if file, err = http.Dir(currentWorkingDir + "/webapp").Open(path); err == nil {
 		return
 	}
-	return nil, errors.New("Not found") //webapp.Dir(".").Open(path)
+	return nil, errors.New("Not found")
 }
 
 // Starts a separate server for the web ui.
